@@ -18,6 +18,7 @@ public class ChatClientGUI extends JFrame {
 
 	public ChatClientGUI() {
 		// TODO Auto-generated constructor stub
+		//window
 		super("Chat Application");
 		setSize(400, 500);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -28,26 +29,30 @@ public class ChatClientGUI extends JFrame {
 		Font textFont = new Font("Arial", Font.PLAIN, 14);
 		Font buttonFont = new Font("Arial", Font.BOLD, 12);
 		
+		//message display area
 		messageArea = new JTextArea();
 		messageArea.setEditable(false);
 		messageArea.setBackground(backgroundColor);
 		messageArea.setFont(textFont);
 		add(new JScrollPane(messageArea), BorderLayout.CENTER);
 		
+		//text input field
 		textField = new JTextField();
 		textField.setFont(textFont);
 		textField.setForeground(textColor);
 		textField.setBackground(backgroundColor);
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//sends message to server
 				client.sendMessage(textField.getText());
+				//clears input field after sending
 				textField.setText("");
 			}
 		});
 		add(textField, BorderLayout.SOUTH);
 		
 		//when the client starts, it prompts the user to enter their name in a dialog box
-		//we update the app window's title and we reflect the user's identity using given name
+		//updates app window's title and reflects the user's identity using given name
 		
 		String name = JOptionPane.showInputDialog(this, "Enter your name: ", "Name Entry", JOptionPane.PLAIN_MESSAGE);
 		//set window title to include name
@@ -55,7 +60,7 @@ public class ChatClientGUI extends JFrame {
 		
 		//modify actionperformed to include the user name and time stamp
 		textField.addActionListener(e -> {
-			//when pressed enter = construct message that includes a current timestamp and the user's name
+			//when pressed enter constructs message that includes a current timestamp and the user's name
 			String message = "[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "]" + name + ": " + textField.getText();
 			//sending to server
 			client.sendMessage(message);
@@ -63,7 +68,7 @@ public class ChatClientGUI extends JFrame {
 			textField.setText("");
 		});
 		
-		//created exit button to close application
+		//exit button to close application
 		exitButton = new JButton("Exit");
 		exitButton.setFont(buttonFont);
 		exitButton.setBackground(buttonColor);
@@ -73,7 +78,7 @@ public class ChatClientGUI extends JFrame {
 			//message to the server
 			String departureMessage = name + " has left the chat";
 			client.sendMessage(departureMessage);
-			//app waits one second to ensure message was successfullly sent
+			//app waits one second to ensure message was successfully sent
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException ie) {
@@ -89,24 +94,53 @@ public class ChatClientGUI extends JFrame {
 		bottomPanel.add(exitButton, BorderLayout.EAST);
 		add(bottomPanel, BorderLayout.SOUTH);
 		
+		loginScreen();
+	}
+	
+	private void loginScreen() {
+		String username = JOptionPane.showInputDialog(this, "Enter your username: ", "Login", JOptionPane.PLAIN_MESSAGE);
+		if(username == null || username.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Username is required", "Login Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
+		}
+		
+		String password = JOptionPane.showInputDialog(this, "Enter your password: ", "Login", JOptionPane.PLAIN_MESSAGE);
+		if(password == null || password.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Password is required", "Login Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
+		}
+		
 		try {
+			//connects to server
 			this.client = new ChatClient("127.0.0.1", 5000, this::onMessageReceived);
+			if(this.client == null) {
+				JOptionPane.showMessageDialog(this, "Login failed. Username or password incorrect", "Login error", JOptionPane.ERROR_MESSAGE);
+				System.exit(1);
+			}
+			
+			this.setTitle("Chat - " + username);
+			this.setVisible(true);
+			//listens for messages
 			client.startClient();
 		} catch(IOException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error connecting to the server", "Connection error",
 					JOptionPane.ERROR_MESSAGE);
+			//if connection fails exits app
 			System.exit(1);
 		}
-		
 	}
 	
+	//whenever a message is received from the server
+	//this method is called
 	private void onMessageReceived(String message) {
+		//appends message to text area
 		SwingUtilities.invokeLater(() -> messageArea.append(message + "\n"));
 	}
 	
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> {
+			//starts the gui
 			new ChatClientGUI().setVisible(true);
 		});
 	}
