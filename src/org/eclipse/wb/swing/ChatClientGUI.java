@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import com.chatapp.client.ChatClient;
+import com.chatapp.server.Database;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -108,6 +110,13 @@ public class ChatClientGUI extends JFrame {
 		if(password == null || password.isEmpty()) {
 			JOptionPane.showMessageDialog(this, "Password is required", "Login Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
+		}
+		
+		boolean isAuthenticated = Database.authenticateUser(username, password);
+		if(!isAuthenticated) {
+			JOptionPane.showMessageDialog(this, "Invalid username or password. Please try again", "Login error", JOptionPane.ERROR_MESSAGE);
+			loginScreen();
+			return;
 		}
 		
 		try {
