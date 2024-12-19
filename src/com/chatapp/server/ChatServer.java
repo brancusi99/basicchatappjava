@@ -7,10 +7,22 @@ import java.util.*;
 
 //the server listens in a loop for incoming connections
 
+/**
+ * represents the server side of the application
+ * listens in a loop for incoming connections and manages multiple clients simultaneously
+ */
+
 public class ChatServer {
 
 	//list holds all connected clients
+	
 	private static List<ClientHandler> clients = new ArrayList<>();
+	
+	/**
+	 * main method that starts the server and listens for incoming client connections
+	 * @param args
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws IOException{
 		//class starts a server that listens on port 5000
 		ServerSocket serverSocket = new ServerSocket(5000);
@@ -31,6 +43,10 @@ public class ChatServer {
 }
 
 //class handles communication with a connected client
+/**
+ * Class handles communication with a connected client and runs in a separate
+ * thread to allow handling of multiple clients
+ */
 class ClientHandler implements Runnable{
 	private Socket clientSocket;
 	private List<ClientHandler> clients;
@@ -39,6 +55,13 @@ class ClientHandler implements Runnable{
 	private String username;
 	
 	//reads messages sent by client and broadcasts to other clients
+	
+	/**
+	 * Creates a new ClientHandles to handle communication with a client
+	 * @param socket the client socket
+	 * @param clients the list of connected clients
+	 * @throws IOException
+	 */
 	public ClientHandler(Socket socket, List<ClientHandler> clients) throws IOException{
 		this.clientSocket = socket;
 		this.clients = clients;
@@ -46,6 +69,9 @@ class ClientHandler implements Runnable{
 		this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 	}
 	
+	/**
+	 * The main method that handles communication and message broadcasting
+	 */
 	public void run() {
 		try {
 			//prompt for username and password

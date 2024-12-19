@@ -8,6 +8,11 @@ import javax.swing.JOptionPane;
 
 import java.net.*;
 
+/**
+ * class represents the client side of the application
+ * it connects, sends and receives messages from the server
+ */
+
 public class ChatClient {
 	
 	private Socket socket;
@@ -15,6 +20,14 @@ public class ChatClient {
 	private PrintWriter out;
 	private BufferedReader in;
 
+	/**
+	 * Creates a new client and connects to the server
+	 * @param serverAddress the server's address (IP or hostname)
+	 * @param serverPort the server's port number
+	 * @param onMessageReceived callback function to handle received messages
+	 * @throws IOException
+	 */
+	
 	public ChatClient(String serverAddress, int serverPort, Consumer<String> onMessageReceived) throws IOException{
 		//connects to server
 			this.socket = new Socket(serverAddress, serverPort);
@@ -27,11 +40,20 @@ public class ChatClient {
 	}
 	
 	//sends messages to server
+	/**
+	 * Sends messages to the server
+	 * @param msg the message to send
+	 */
 	public void sendMessage(String msg) {
 		out.println(msg);
 	}
 	
 	//receive messages in a separate thread
+	
+	/**
+	 * Starts the client to listen for messages from the server 
+	 * Runs in a separate thread to handle a magnitude of messages
+	 */
 	public void startClient() {
 		new Thread(() -> {
 			try {
@@ -48,6 +70,15 @@ public class ChatClient {
 		}).start();
 	}
 	
+	/**
+	 * Handles the login process by prompting the user for credentials and
+	 * authenticating them with the server
+	 * @param serverAddress
+	 * @param serverPort
+	 * @param onMessageReceived
+	 * @return a ChatClient instance if successful, null if not
+	 */
+	/*
 	public static ChatClient login(String serverAddress, int serverPort, Consumer<String> onMessageReceived) {
 		try {
 			Socket socket = new Socket(serverAddress, serverPort);
@@ -75,5 +106,6 @@ public class ChatClient {
 			return null;
 		}
 	}
+	*/
 
 }
