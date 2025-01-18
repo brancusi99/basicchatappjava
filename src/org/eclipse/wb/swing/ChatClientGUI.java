@@ -6,6 +6,8 @@ import java.awt.event.*;
 import java.io.IOException;
 import com.chatapp.client.ChatClient;
 import com.chatapp.server.Database;
+import com.chatapp.operations.MessageOperations.*;
+
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -180,6 +182,7 @@ public class ChatClientGUI extends JFrame {
 				String message = "[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "]" + username + ": " + textField.getText();
 				//sending to server
 				client.sendMessage(message);
+				//message.insertMessage();
 				//after sending message, text field is cleared
 				textField.setText("");
 			});

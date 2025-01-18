@@ -5,6 +5,9 @@ import java.sql.*;
 import java.net.*;
 import java.util.*;
 
+import com.chatapp.operations.MessageOperations;
+
+
 //the server listens in a loop for incoming connections
 
 /**
@@ -90,12 +93,27 @@ class ClientHandler implements Runnable{
 			this.username = inputUsername;
 			out.println("Welcome " + username);
 			
+			int senderId = Database.getUserId(username);
+			
 			String inputLine;
 			//continuously reads messages from this client and 
 			//broadcasts to others
-			while((inputLine = in.readLine()) != null) 
+			while((inputLine = in.readLine()) != null) {
+				
+				String[] messageParts = inputLine.split(":", 2);
+	            String receiverUsername = messageParts[0].trim();  // First part as receiver's username
+	            String messageContent = messageParts[1].trim();    // Second part as message content
+
+	            // Fetch the receiverId from the database
+	            int receiverId = Database.getUserId(receiverUsername);
+
+	            // Now you can insert the message into the database
+	            MessageOperations.insertMessage(senderId, receiverId, messageContent);
+
+				
 				for(ClientHandler aClient : clients)
 					aClient.out.println(username + ": " + inputLine);
+			}
 			
 			
 	} catch(IOException e) {
@@ -111,6 +129,7 @@ class ClientHandler implements Runnable{
 	}
 	
  }
+    
 	
 }
 

@@ -1,5 +1,9 @@
 package com.chatapp.server;
 
+import static com.chatapp.server.Database.getPassword;
+import static com.chatapp.server.Database.getUrl;
+import static com.chatapp.server.Database.getUser;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -15,6 +19,18 @@ public class Database {
 		private static final String URL = "jdbc:mysql://localhost:3306/ChatAppDB";
 		private static final String USER = "root";
 		private static final String PASSWORD = "";
+		
+		public static String getUser() {
+			return USER;
+		}
+		
+		public static String getUrl() {
+			return URL;
+		}
+		
+		public static String getPassword() {
+			return PASSWORD;
+		}
 		
 		//method to authenticate an user
 		
@@ -82,5 +98,26 @@ public class Database {
 				return false;
 			}
 		}
+
+	    public static int getUserId(String username) {
+	    	try(
+	    			Connection connection = DriverManager.getConnection(getUrl(), getUser(), getPassword());
+	    			){
+	    			String sql = "SELECT id FROM users WHERE username = ?";
+	    			try(
+	    					PreparedStatement preparedStatement = connection.prepareStatement(sql)
+	    				){
+	    				preparedStatement.setString(1, username);
+	    				ResultSet result = preparedStatement.executeQuery();
+	    				if(result.next())
+	    					return result.getInt("id");
+	    			}
+	    	} catch(SQLException e) {
+	    		e.printStackTrace();
+	    	}
+	    		
+	    	return -1;
+	    }
+
 	
 }
