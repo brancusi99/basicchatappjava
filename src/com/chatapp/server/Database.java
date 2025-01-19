@@ -4,6 +4,8 @@ import static com.chatapp.server.Database.getPassword;
 import static com.chatapp.server.Database.getUrl;
 import static com.chatapp.server.Database.getUser;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -57,6 +59,23 @@ public class Database {
 			}
 		}
 		
+		public static String getCreationTimestamp(String username) {
+			try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)){
+				String query = "SELECT created_at FROM users WHERE username = ?";
+				try(PreparedStatement statement = connection.prepareStatement(query)){
+					statement.setString(1, username);
+					ResultSet result = statement.executeQuery();
+					if(result.next())
+						return result.getString("created_at");
+					else
+						return null;
+				}
+			} catch(SQLException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		
 		/**
 		 * Verifies if the username already exists in the database
 		 * @param username
@@ -98,7 +117,27 @@ public class Database {
 				return false;
 			}
 		}
+/*
+		public static void createUser(String username, String email, String password, String details, String imagePath) {
 
+	        String sql = "INSERT INTO users (username, email, password, details, profile_image) VALUES (?, ?, ?, ?, ?)";
+	        try (
+	                Connection connection = DriverManager.getConnection(getUrl(), getUser(), getPassword());
+	                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+	                InputStream imageStream = new FileInputStream(imagePath)
+	        ) {
+	            preparedStatement.setString(1, username);
+	            preparedStatement.setString(2, email);
+	            preparedStatement.setString(3, password);
+	            preparedStatement.setString(4, details);
+	            preparedStatement.setBlob(5, imageStream);
+	            preparedStatement.executeUpdate();
+	            System.out.println("User inserat cu succes!");
+	        } catch (Exception e) {
+	            System.out.println("Eroare la inserarea userului: " + e.getMessage());
+	        }
+	    }
+*/
 	    public static int getUserId(String username) {
 	    	try(
 	    			Connection connection = DriverManager.getConnection(getUrl(), getUser(), getPassword());
@@ -118,6 +157,8 @@ public class Database {
 	    		
 	    	return -1;
 	    }
+	    
+	    
 
 	
 }
