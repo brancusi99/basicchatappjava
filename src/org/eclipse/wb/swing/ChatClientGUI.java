@@ -165,8 +165,10 @@ public class ChatClientGUI extends JFrame {
 			int choice = JOptionPane.showConfirmDialog(this, "Invalid username or password. Sign up?", "Login error", JOptionPane.YES_NO_OPTION);
 				if(choice == JOptionPane.YES_OPTION)
 					signUpScreen();
-				else
+				else {
+					
 					System.exit(1);
+				}
 		}
 		else
 			startChat(username);

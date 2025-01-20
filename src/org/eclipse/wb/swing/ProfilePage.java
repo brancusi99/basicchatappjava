@@ -151,7 +151,7 @@ public class ProfilePage extends JFrame {
                     profileImageLabel.setIcon(new ImageIcon(img.getScaledInstance(100, 100, Image.SCALE_SMOOTH)));
                 } else {
                     // If no profile image exists, set a default icon
-                    profileImageLabel.setIcon(new ImageIcon("path/to/default/image.png")); // Replace with your default image path
+                    profileImageLabel.setIcon(new ImageIcon("Downloads/smiley.jpg")); // Replace with your default image path
                 }
             }
         } catch (Exception e) {

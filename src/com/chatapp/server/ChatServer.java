@@ -5,7 +5,7 @@ import java.sql.*;
 import java.net.*;
 import java.util.*;
 
-import com.chatapp.operations.MessageOperations;
+import com.chatapp.server.Database.*;
 
 
 //the server listens in a loop for incoming connections

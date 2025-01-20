@@ -159,6 +159,35 @@ public class Database {
 	    }
 	    
 	    
+	    public static void insertMessage(int senderId, int receiverId, String content) {
 
-	
+	        String sql = "INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)";
+	        try (
+	                Connection connection = DriverManager.getConnection(getUrl(), getUser(), getPassword());
+	                PreparedStatement preparedStatement = connection.prepareStatement(sql)
+	        ) {
+	            preparedStatement.setInt(1, senderId);
+	            preparedStatement.setInt(2, receiverId);
+	            preparedStatement.setString(3, content);
+	            preparedStatement.executeUpdate();
+	            System.out.println("Mesaj inserat cu succes!");
+	        } catch (SQLException e) {
+	            System.out.println("Eroare la inserarea mesajului: " + e.getMessage());
+	        }
+	    }
+	    /*
+	    public static void updateUserActive(String username) {
+			try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)){
+				String query = "UPDATE active FROM users WHERE username = ?";
+				try(PreparedStatement statement = connection.prepareStatement(query)){
+					statement.setString(1, username);
+					ResultSet result = statement.executeQuery();
+					return result.next();
+				}
+			} catch(SQLException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+	*/
 }
