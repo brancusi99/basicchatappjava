@@ -28,7 +28,7 @@ public class ChatServer {
 	 */
 	public static void main(String[] args) throws IOException{
 		try (//class starts a server that listens on port 5000
-		ServerSocket serverSocket = new ServerSocket(5000)) {
+		ServerSocket serverSocket = new ServerSocket(12345)) {
 			System.out.println("Server started. Waiting for clients...");
 			
 			//accepts connections continuously 
@@ -39,9 +39,12 @@ public class ChatServer {
 				//spawn a new thread for each connected client
 				//ClientHandler class represents new thread
 				ClientHandler clientThread = new ClientHandler(clientSocket, clients);
+				clientThread.setUsername();
 				clients.add(clientThread);
 				new Thread(clientThread).start();
 			}
+		} catch (BindException e) {
+			e.printStackTrace();
 		}
 	}
 }
@@ -67,17 +70,103 @@ class ClientHandler implements Runnable{
 	 * @throws IOException
 	 */
 	public ClientHandler(Socket socket, List<ClientHandler> clients) throws IOException{
-		this.clientSocket = socket;
+		clientSocket = socket;
 		this.clients = clients;
-		this.out = new PrintWriter(clientSocket.getOutputStream(), true);
-		this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		out = new PrintWriter(clientSocket.getOutputStream(), true);
+		in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+	}
+	
+	public void setUsername(String user) {
+		username = user;
 	}
 	
 	/**
 	 * The main method that handles communication and message broadcasting
 	 */
 	
+	//New run method
+	public void run() {
+	    try {
+	        String inputLine;
+	        // Continuously reads messages from this client and handles them
+	        while ((inputLine = in.readLine()) != null) {
+	            if (inputLine.isEmpty()) {
+	                continue;
+	            }
+
+	            System.out.println("Raw message: " + inputLine);
+	            // Validate the input message format
+	            if (!inputLine.contains("]") || (!inputLine.contains(":") && !inputLine.contains("->"))) {
+	                System.out.println("Invalid message format. Ensure the message includes a timestamp, recipient, and colon.");
+	                continue;
+	            }
+
+	            String recipientUsername = null;
+	            String senderUsername = null;
+	            String messageContent = null;
+	            String timestamp = null;
+
+	            try {
+	                // Extract timestamp
+	                int timestampEnd = inputLine.indexOf("]") + 1;
+	                timestamp = inputLine.substring(1, timestampEnd - 1);
+
+	                // Extract sender, recipient, and message content
+	                int arrowIndex = inputLine.indexOf("->");
+	                if (arrowIndex == -1) {
+	                    out.println("Invalid format. Use: '[timestamp] sender -> recipient: message'.");
+	                    continue;
+	                }
+
+	                senderUsername = inputLine.substring(inputLine.indexOf("]") + 1, arrowIndex).trim();
+	                recipientUsername = inputLine.substring(arrowIndex + 2, inputLine.indexOf(":")).trim();
+	                messageContent = inputLine.substring(inputLine.indexOf(":") + 1).trim();
+	            } catch (IndexOutOfBoundsException e) {
+	                out.println("Failed to parse the message. Ensure it follows the correct format.");
+	                continue;
+	            }
+
+	            // Log the extracted message for debugging
+	            System.out.println("[" + timestamp + "] " + senderUsername + " -> " + recipientUsername + ": " + messageContent);
+
+	            // Route the message to the intended recipient
+	            boolean foundRecipient = false;
+	            for (ClientHandler client : clients) {
+	                if (client.username != null && client.username.equalsIgnoreCase(recipientUsername)) {
+	                	System.out.println(recipientUsername);
+	                	client.out.println("[" + timestamp + "] " + senderUsername + " -> " + recipientUsername + ": " + messageContent);
+	                    foundRecipient = true;
+	                    /*
+	                    int senderId = Database.getUserId(senderUsername);
+	                    int recipientId = Database.getUserId(recipientUsername);
+	                    Database.insertMessage(senderId, recipientId, messageContent);
+	                    */
+	                    break;
+	                }
+	            }
+
+	            // Notify sender if the recipient was not found
+	            if (!foundRecipient) {
+	                out.println("Recipient not found: " + recipientUsername);
+	            }
+	        }
+	    } catch (IOException e) {
+	        System.out.println("An error occurred: " + e.getMessage());
+	    } finally {
+	        try {
+	            in.close();
+	            out.close();
+	            clientSocket.close();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
+
+
 	
+	//Current run method
+	/*
 	@Override
 	public void run() {
 	    try { 
@@ -132,8 +221,8 @@ class ClientHandler implements Runnable{
 	        }
 	    }
 	}
-	
-	
+	*/
+	// Old run method
 	/*
 	public void run() {
 		try { 

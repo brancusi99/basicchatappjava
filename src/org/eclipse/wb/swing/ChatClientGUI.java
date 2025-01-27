@@ -147,7 +147,7 @@ public class ChatClientGUI extends JFrame {
 
 	    if (option != JOptionPane.OK_OPTION || passwordField.getPassword().length == 0) {
 	        JOptionPane.showMessageDialog(this, "Password is required", "Login Error", JOptionPane.ERROR_MESSAGE);
-	        System.exit(1);
+	        loginScreen();
 	    }
 
 	    String password = new String(passwordField.getPassword());
@@ -259,10 +259,70 @@ public class ChatClientGUI extends JFrame {
 	 * Starts the chat session if the login was successful and sets up message handling
 	 * @param username username of the logged in user
 	 */
+	
+	//New startchat() method
+	//asks for the recipient username at the start of the session, then messages
+	//will automatically include said recipient
+	/*
+	private void startChat(String username) {
+	    try {
+	        // Connect to the server
+	        this.client = new ChatClient("127.0.0.1", 5000, this::onMessageReceived);
+
+	        if (this.client == null) {
+	            JOptionPane.showMessageDialog(this, "Login failed. Username or password incorrect", "Login error", JOptionPane.ERROR_MESSAGE);
+	            System.exit(1);
+	        }
+
+	        this.setTitle("Chat - " + username);
+	        this.setVisible(true);
+
+	        // Prompt the user for a recipient at the start of the session
+	        String recipient = JOptionPane.showInputDialog(this, "Enter the recipient's username:");
+	        if (recipient == null || recipient.isEmpty()) {
+	            JOptionPane.showMessageDialog(this, "Recipient is required.", "Error", JOptionPane.ERROR_MESSAGE);
+	            System.exit(1);
+	        }
+
+	        // Modify textField action listener to include recipient in messages
+	        textField.addActionListener(e -> {
+	            String message = "[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "]" 
+	                             + username + " -> " + recipient + ": " + textField.getText();
+	            client.sendMessage(message);
+	            textField.setText(""); // Clear input field
+	        });
+
+	        profileButton.addActionListener(e -> openProfile(username));
+
+	        exitButton.addActionListener(e -> {
+	            if (client != null) {
+	                String departureMessage = "User has left the chat.";
+	                client.sendMessage(departureMessage);
+	            }
+	            try {
+	                Thread.sleep(1000);
+	            } catch (InterruptedException ie) {
+	                Thread.currentThread().interrupt();
+	            }
+	            System.exit(0);
+	        });
+
+	        client.startClient();
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(this, "Error connecting to the server", "Connection error",
+	                JOptionPane.ERROR_MESSAGE);
+	        System.exit(1);
+	    }
+	}
+*/
+	
+	//Old startchat() method
+	
 	private void startChat(String username) {
 		try {
 			//connects to server
-			this.client = new ChatClient("127.0.0.1", 5000, this::onMessageReceived);
+			this.client = new ChatClient("127.0.0.1", 12345, this::onMessageReceived);
 			
 			if(this.client == null) {
 				JOptionPane.showMessageDialog(this, "Login failed. Username or password incorrect", "Login error", JOptionPane.ERROR_MESSAGE);
@@ -271,8 +331,23 @@ public class ChatClientGUI extends JFrame {
 			
 			this.setTitle("Chat - " + username);
 			this.setVisible(true);
+
+			textField.addActionListener(e -> {
+			    String recipient = JOptionPane.showInputDialog(this, "Enter the recipient's username:");
+			    if (recipient == null || recipient.isEmpty()) {
+			        JOptionPane.showMessageDialog(this, "Recipient is required.", "Error", JOptionPane.ERROR_MESSAGE);
+			       return;
+			    }
+			    String message = "[" + new SimpleDateFormat("HH-mm-ss").format(new Date()) + "]" + " " 
+			                   + username + " -> " + recipient + ": " + textField.getText();
+			    client.sendMessage(message);
+			    textField.setText(""); // Clear input field
+			});
+			
 			
 
+			
+			/*
 			//modify actionperformed to include the user name and time stamp
 			textField.addActionListener(e -> {
 				//when pressed enter constructs message that includes a current timestamp and the user's name
@@ -283,7 +358,7 @@ public class ChatClientGUI extends JFrame {
 				//after sending message, text field is cleared
 				textField.setText("");
 			});
-
+*/
 			profileButton.addActionListener(e -> openProfile(username));
 			
 			exitButton.addActionListener(e -> {
@@ -311,6 +386,7 @@ public class ChatClientGUI extends JFrame {
 			System.exit(1);
 		}
 	}
+	
 	
 	//whenever a message is received from the server
 	//this method is called

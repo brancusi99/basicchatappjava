@@ -163,7 +163,7 @@ public class Database {
 
 	        String sql = "INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)";
 	        try (
-	                Connection connection = DriverManager.getConnection(getUrl(), getUser(), getPassword());
+	                Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 	                PreparedStatement preparedStatement = connection.prepareStatement(sql)
 	        ) {
 	            preparedStatement.setInt(1, senderId);
